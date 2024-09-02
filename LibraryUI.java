@@ -149,10 +149,9 @@ public class LibraryUI
                     if (scanner.hasNextLine())
                     {
                         phoneNumber = scanner.nextLine();
-                        scanner.nextLine();
                     }
                     libMS.registerNewUser(name,DOB,phoneNumber);
-                    // System.out.printf("User: %-15s Address: %-15s Wallet: %2.2f", name, address, wallet); 
+                    System.out.println("User successfully registered!"); 
                 }
                 else if (action.equalsIgnoreCase("REGBOOK"))
                 {
@@ -176,6 +175,7 @@ public class LibraryUI
                         isbnNumber = scanner.nextLine();
                     }
                     libMS.registerNewBook(title, author, isbnNumber);
+                    System.out.println("Book successfully registered!");
 
                 }
                 else if (action.equalsIgnoreCase("SORTBYTITLE"))
@@ -190,5 +190,6 @@ public class LibraryUI
             }
             System.out.print("\n>");
         }
+        scanner.close();
     }
 }
