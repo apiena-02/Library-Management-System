@@ -1,3 +1,4 @@
+import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,7 +16,36 @@ public class LibrarySystemManager {
         books = new ArrayList<Book>();
     }
 
-    
+    private boolean userExists(User user)
+    {
+      // Loop through map of users to find user
+      for (Map.Entry<Integer, User> entry : users.entrySet())
+      {
+        User person = entry.getValue();
+        if (person.equals(user))
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private boolean bookExists(Book book)
+    {
+        
+        for (int i = 0; i < books.size(); i++)
+        {
+            
+            Book newBook = books.get(i);
+            
+            if (newBook.equals(book))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setUsers(ArrayList<User> userList)
     {
        
@@ -240,7 +270,10 @@ public class LibrarySystemManager {
         {
             int id = users.size() + 2000;
             User person = new User(id, name, DOB, phoneNumber);
-            
+            if (userExists(person))
+            {
+                throw new UserExistsException("User already exists in the system.");
+            }
             users.put(id, person);
 
         }
@@ -259,14 +292,25 @@ public class LibrarySystemManager {
     }
 
     public void registerNewBook(String title, String author, String isbnNumber) {
-        if (title != null && author != null && isbnNumber.length() == 13 && isNumeric(isbnNumber)) {
+        if (title != null && author != null && isbnNumber.length() == 13 && isNumeric(isbnNumber)) 
+        {
             Book newBook = new Book(title, author, isbnNumber);
+            if (bookExists(newBook))
+            {
+                throw new BookExistsException("A book with this ISBN Number already exists in the system.");
+            }
             books.add(newBook);
-        } else if (title == null) {
+        } 
+        else if (title == null) 
+        {
             throw new InvalidTitleException("Invalid Title.");
-        } else if (author == null) {
+        } 
+        else if (author == null) 
+        {
             throw new InvalidAuthorException("Invalid Author.");
-        } else if (isbnNumber.length() != 13 || !isNumeric(isbnNumber)) {
+        } 
+        else if (isbnNumber.length() != 13 || !isNumeric(isbnNumber)) 
+        {
             throw new InvalidISBNNumberException("Invalid ISBN Number. ISBN Number must be 13 digits." + isbnNumber.length());
         }
     }
@@ -354,6 +398,20 @@ class InvalidAuthorException extends RuntimeException
 class WrongUserException extends RuntimeException
 {
     public WrongUserException(String message)
+    {
+        super(message);
+    }
+}
+class UserExistsException extends RuntimeException
+{
+    public UserExistsException(String message)
+    {
+        super(message);
+    }
+}
+class BookExistsException extends RuntimeException
+{
+    public BookExistsException(String message)
     {
         super(message);
     }
