@@ -183,6 +183,17 @@ public class LibraryUI
                     // sort books by name
                     libMS.sortByTitle(); 
                 }
+
+                else if (action.equalsIgnoreCase("SUMMARY"))
+                {
+                    int accountId = 0;
+                    System.out.print("User Account Id: ");
+                    if (scanner.hasNextInt())
+                    {
+                        accountId = scanner.nextInt();
+                    }
+                    libMS.listSummary(accountId);
+                }
             }
             catch (RuntimeException e)
             {

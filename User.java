@@ -1,11 +1,14 @@
+
+import java.util.ArrayList;
+
 public class User 
 {
     private int accountId;  
     private String name;
     private String DOB;
     private String phoneNumber; 
-    // private int booksRead;
-    // private int history of books;
+    private ArrayList<Book> currentBooks;
+    private ArrayList<Book> returnedBooks;
 
     public User(int id, String name, String DOB, String phoneNumber)
     {
@@ -47,6 +50,52 @@ public class User
     public void setPhoneNumber(String phoneNumber)
     {
         this.phoneNumber = phoneNumber;
+    }
+
+    public void addCurrentBook(Book book)
+    {
+      currentBooks.add(book);
+    }
+
+    public void addReturnedBook(Book book)
+    {
+      returnedBooks.add(book);
+    }
+
+    public void removeCurrentBook(Book book)
+    {
+      // get index then remove by index
+      for (int i = 0; i < currentBooks.size(); i++)
+      {
+        if (currentBooks.get(i).equals(book))
+        {
+          currentBooks.remove(i);
+          break; 
+        }
+      }
+    }
+
+    public ArrayList<Book> getCurrentBooks()
+    {
+      return currentBooks;
+    }
+
+    public ArrayList<Book> getReturnedBooks()
+    {
+      return returnedBooks;
+    }
+
+    public void removeReturnedBook(Book book)
+    {
+      // get index then remove by index
+      for (int i = 0; i < returnedBooks.size(); i++)
+      {
+        if (returnedBooks.get(i).equals(book))
+        {
+          returnedBooks.remove(i);
+          break; 
+        }
+      }
     }
 
     // Print Information about a User  
