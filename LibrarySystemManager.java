@@ -111,7 +111,11 @@ public class LibrarySystemManager {
                     System.out.println("Book successfully checked out.");
                     books.get(i).setStatus(Book.Status.UNAVAILABLE);
                     books.get(i).setUserID(accountId);
-                } 
+                }
+                else if (books.get(i).getStatus().equals(Book.Status.UNAVAILABLE) && books.get(i).getUserID() == accountId) 
+                {
+                    throw new UnavailableBookException("User has already checked out this book.");
+                }
                 else 
                 {
                     throw new UnavailableBookException("Book is not available for checkout.");
