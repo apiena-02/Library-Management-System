@@ -178,11 +178,6 @@ public class LibraryUI
                     System.out.println("Book successfully registered!");
 
                 }
-                else if (action.equalsIgnoreCase("SORTBYTITLE"))
-                {
-                    // sort books by name
-                    libMS.sortByTitle(); 
-                }
 
                 else if (action.equalsIgnoreCase("SUMMARY"))
                 {
@@ -192,7 +187,19 @@ public class LibraryUI
                     {
                         accountId = scanner.nextInt();
                     }
+                    scanner.nextLine();
                     libMS.listSummary(accountId);
+                }
+
+                else if (action.equalsIgnoreCase("SORTBYTITLE"))
+                {
+                    // sort books by name
+                    libMS.sortByTitle(); 
+                }
+
+                else 
+                {
+                    System.out.println("Invalid response. Please enter a valid command.");
                 }
             }
             catch (RuntimeException e)
