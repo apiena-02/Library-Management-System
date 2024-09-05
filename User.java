@@ -17,6 +17,10 @@ public class User
         this.DOB = DOB;
         this.phoneNumber = phoneNumber;
 
+        // Initialize the ArrayLists
+        this.currentBooks = new ArrayList<>();
+        this.returnedBooks = new ArrayList<>();
+
     }
 
     public int getAccountId()

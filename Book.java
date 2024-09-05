@@ -44,6 +44,11 @@ public class Book {
         System.out.println("Title: " + title + " Author: " + author + " ISBN Number: " + isbnNumber + " Status: " + status);
     }
 
+    public void printInfoShort()
+    {
+        System.out.println("Title: " + title + " Author: " + author + " ISBN Number: " + isbnNumber);
+    }
+
     public boolean equals(Object other)
     {
 

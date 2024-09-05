@@ -139,6 +139,7 @@ public class LibrarySystemManager {
                 {
                     System.out.println("Book successfully checked out.");
                     books.get(i).setStatus(Book.Status.UNAVAILABLE);
+                    user.addCurrentBook(books.get(i));
                     books.get(i).setUserID(accountId);
                 }
                 else if (books.get(i).getStatus().equals(Book.Status.UNAVAILABLE) && books.get(i).getUserID() == accountId) 
@@ -185,6 +186,8 @@ public class LibrarySystemManager {
                 if (books.get(i).getStatus().equals(Book.Status.UNAVAILABLE) && books.get(i).getUserID() == accountId) 
                 {
                     System.out.println("Book successfully returned.");
+                    user.addReturnedBook(books.get(i));
+                    user.removeCurrentBook(books.get(i));
                     books.get(i).setStatus(Book.Status.AVAILABLE);
                 } 
                 else if (books.get(i).getStatus().equals(Book.Status.AVAILABLE)) 
@@ -316,7 +319,21 @@ public class LibrarySystemManager {
 
     public void listSummary(int accountId)
     {
-        
+        User user = getUser(accountId);
+        if (user != null)
+        {
+            System.out.println("Books checked out: ");
+            for (int i = 0; i < user.getCurrentBooks().size(); i++)
+            {
+                user.getCurrentBooks().get(i).printInfoShort();
+            }
+            System.out.println("");
+            System.out.println("Returned books: ");
+            for (int i = 0; i < user.getReturnedBooks().size(); i++)
+            {
+                user.getReturnedBooks().get(i).printInfoShort();
+            }
+        }
     }
     
 
