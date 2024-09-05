@@ -140,6 +140,13 @@ public class LibrarySystemManager {
                     System.out.println("Book successfully checked out.");
                     books.get(i).setStatus(Book.Status.UNAVAILABLE);
                     user.addCurrentBook(books.get(i));
+                    for (int j = 0; j < user.getReturnedBooks().size(); j++)
+                    {
+                        if(books.get(i).equals(user.getReturnedBooks().get(j)))
+                        {
+                            user.removeReturnedBook(books.get(i));
+                        }
+                    }
                     books.get(i).setUserID(accountId);
                 }
                 else if (books.get(i).getStatus().equals(Book.Status.UNAVAILABLE) && books.get(i).getUserID() == accountId) 
