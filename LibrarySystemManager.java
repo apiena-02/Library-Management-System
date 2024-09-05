@@ -5,9 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class LibrarySystemManager {
-    private Map<Integer, User> users;
-    private ArrayList<Book> books;
-    int userAccountId = 2000;
+    private Map<Integer, User> users; // Stores users with their ID
+    private ArrayList<Book> books; // List of books in the library
+    int userAccountId = 2000;  // Starting user account ID
 
     public LibrarySystemManager()
     {
@@ -17,7 +17,7 @@ public class LibrarySystemManager {
 
     private boolean userExists(User user)
     {
-      // Loop through map of users to find user
+      // Check if the user exists in the system
       for (Map.Entry<Integer, User> entry : users.entrySet())
       {
         User person = entry.getValue();
@@ -31,12 +31,10 @@ public class LibrarySystemManager {
 
     private boolean bookExists(Book book)
     {
-        
+        // Check if the book exists in the library
         for (int i = 0; i < books.size(); i++)
         {
-            
             Book newBook = books.get(i);
-            
             if (newBook.equals(book))
             {
                 return true;
@@ -47,7 +45,7 @@ public class LibrarySystemManager {
 
     public void setUsers(ArrayList<User> userList)
     {
-       
+        // Assign account ID to each user and add them to the system
         for (User user : userList) 
         {
             int id = 2000 + users.size();
@@ -58,7 +56,7 @@ public class LibrarySystemManager {
 
     public void setBooks(ArrayList<Book> bookList)
     {
-       
+         // Add books to the library
         for (int i = 0; i < bookList.size(); i++)
         {    
             books.add(bookList.get(i));
@@ -68,6 +66,7 @@ public class LibrarySystemManager {
    
     public void listAllUsers()
     {
+        // List all registered users
         int count = 1;
         for (Map.Entry<Integer, User> entry : users.entrySet()) 
         {
@@ -80,6 +79,7 @@ public class LibrarySystemManager {
 
     public void listAllBooks()
     {
+        // List all books in the library
         int count = 1;
         for (int i = 0; i < books.size(); i++)
         {
@@ -92,15 +92,12 @@ public class LibrarySystemManager {
 
     public User getUser(int accountId)
     {
-      // Loop through map of users
+      // Retrieve user by account ID
       for (Map.Entry<Integer, User> entry : users.entrySet())
       {
-        // Get the user account id
         int id = entry.getKey();
-        // Check if the account id is equal 
         if (id == accountId)
         {
-          // return user
           return entry.getValue();
         }
       }
@@ -110,256 +107,317 @@ public class LibrarySystemManager {
 
     private static boolean isNumeric(String str) 
     {
+        // Check if all characters in a string are numbers
         return str.chars().allMatch(Character::isDigit);
     }
 
     public void checkoutBook(int accountId, String isbnNumber) 
     {
+        // Retrieve the user based on account ID
         User user = getUser(accountId);
-    
-        // Check if the user exists first
+        
+        // Check if the user exists in the system
         if (user == null) 
         {
             throw new UserDoesNotExistException("User does not exist.");
         }
     
-        // Proceed with ISBN validation if the user is valid
+        // Validate the ISBN number: must be exactly 13 digits
         if (isbnNumber.length() != 13 || !isNumeric(isbnNumber)) 
         {
             throw new InvalidISBNNumberException("Invalid ISBN Number. ISBN Number must be 13 digits.");
         }
     
-        boolean bookFlag = false;
+        boolean bookFound = false;
+        
+        // Iterate through the list of books to find the matching ISBN
         for (int i = 0; i < books.size(); i++) 
         {
-            if (books.get(i).getIsbnNumber().equals(isbnNumber)) 
+            Book book = books.get(i);
+            
+            // Check if the current book matches the ISBN number
+            if (book.getIsbnNumber().equals(isbnNumber)) 
             {
-                bookFlag = true;
-                if (books.get(i).getStatus().equals(Book.Status.AVAILABLE)) 
+                bookFound = true;
+    
+                // Check if the book is available for checkout
+                if (book.getStatus().equals(Book.Status.AVAILABLE)) 
                 {
+                    // Update the book status to UNAVAILABLE
+                    book.setStatus(Book.Status.UNAVAILABLE);
+                    // Add the book to the user's current checked-out books
+                    user.addCurrentBook(book);
+                    
+                    // Remove the book from the user's returned books list if present
+                    user.removeReturnedBook(book);
+                    
+                    // Set the book's user ID to the current user's account ID
+                    book.setUserID(accountId);
+                    
                     System.out.println("Book successfully checked out.");
-                    books.get(i).setStatus(Book.Status.UNAVAILABLE);
-                    user.addCurrentBook(books.get(i));
-                    for (int j = 0; j < user.getReturnedBooks().size(); j++)
-                    {
-                        if(books.get(i).equals(user.getReturnedBooks().get(j)))
-                        {
-                            user.removeReturnedBook(books.get(i));
-                        }
-                    }
-                    books.get(i).setUserID(accountId);
-                }
-                else if (books.get(i).getStatus().equals(Book.Status.UNAVAILABLE) && books.get(i).getUserID() == accountId) 
+                } 
+                // Check if the book is already checked out by the user
+                else if (book.getStatus().equals(Book.Status.UNAVAILABLE) && book.getUserID() == accountId) 
                 {
                     throw new UnavailableBookException("User has already checked out this book.");
-                }
+                } 
+                // Handle the case where the book is unavailable for other reasons
                 else 
                 {
                     throw new UnavailableBookException("Book is not available for checkout.");
                 }
             }
         }
-    
-        // If no matching book was found, throw an exception
-        if (!bookFlag) 
+        
+        // If no matching book was found in the list, throw an exception
+        if (!bookFound) 
         {
             throw new BookDoesNotExistException("Book does not exist in the library.");
         }
-    }
+    } 
     
-    
-
     public void returnBook(int accountId, String isbnNumber) 
     {
-        // Validate if the user exists first
+        // Retrieve the user based on account ID
         User user = getUser(accountId);
+        
+        // Check if the user exists in the system
         if (user == null) 
         {
             throw new UserDoesNotExistException("User does not exist.");
         }
     
-        // Validate the ISBN number
+        // Validate the ISBN number: must be exactly 13 digits
         if (isbnNumber.length() != 13 || !isNumeric(isbnNumber)) 
         {
             throw new InvalidISBNNumberException("Invalid ISBN Number. ISBN Number must be 13 digits.");
         }
     
-        boolean bookFlag = false;
+        boolean bookFound = false;
+        
+        // Iterate through the list of books to find the matching ISBN
         for (int i = 0; i < books.size(); i++) 
         {
-            if (books.get(i).getIsbnNumber().equals(isbnNumber)) 
+            Book book = books.get(i);
+            
+            // Check if the current book matches the ISBN number
+            if (book.getIsbnNumber().equals(isbnNumber)) 
             {
-                bookFlag = true;
-                if (books.get(i).getStatus().equals(Book.Status.UNAVAILABLE) && books.get(i).getUserID() == accountId) 
+                bookFound = true;
+    
+                // Check if the book is currently checked out by the user
+                if (book.getStatus().equals(Book.Status.UNAVAILABLE) && book.getUserID() == accountId) 
                 {
+                    // Successfully return the book
                     System.out.println("Book successfully returned.");
-                    user.addReturnedBook(books.get(i));
-                    user.removeCurrentBook(books.get(i));
-                    books.get(i).setStatus(Book.Status.AVAILABLE);
+                    // Add the book to the user's returned books list
+                    user.addReturnedBook(book);
+                    // Remove the book from the user's current checked-out books
+                    user.removeCurrentBook(book);
+                    // Update the book status to AVAILABLE
+                    book.setStatus(Book.Status.AVAILABLE);
+                    
+                    // Reset the book's user ID 
+                    book.setUserID(-1); 
                 } 
-                else if (books.get(i).getStatus().equals(Book.Status.AVAILABLE)) 
+                // Handle the case where the book is available (not checked out)
+                else if (book.getStatus().equals(Book.Status.AVAILABLE)) 
                 {
                     throw new UnavailableBookException("Book is not checked out.");
                 } 
+                // Handle the case where the book is checked out by a different user
                 else 
                 {
                     throw new WrongUserException("User did not check out this book.");
                 }
             }
         }
-    
-        // If no matching book was found, throw an exception
-        if (!bookFlag) 
+        
+        // If no matching book was found in the list, throw an exception
+        if (!bookFound) 
         {
             throw new BookDoesNotExistException("Book does not exist in the library.");
         }
-    }
-    
+    }    
     
 
     public void searchBook(String title)
     {
         int count = 1;
-        boolean bookFlag = false;
-        for (int i = 0; i < books.size(); i++)
+        boolean bookFound = false;
+        
+        // Iterate through the list of books to find those with the matching title
+        for (Book book : books)
         {
-            if (books.get(i).getTitle().equals(title))
+            if (book.getTitle().equals(title))
             {
-                bookFlag = true;
-                System.out.printf("%-2s. ", count);
-                books.get(i).printInfo();
+                bookFound = true;
+                // Print book details with a count prefix
+                System.out.printf("%-2d. ", count);
+                book.printInfo();
                 System.out.println();
                 count++;
             }
         }
-        if (bookFlag == false)
+        
+        // If no books with the matching title were found, throw an exception
+        if (!bookFound)
         {
             throw new BookDoesNotExistException("Book does not exist in library.");
         }
     }
-
+    
     public static boolean isValidDateOfBirth(String dateOfBirth) 
     {
         if (dateOfBirth == null || dateOfBirth.length() != 10) 
         {
             return false;
         }
-
+    
+        // Check format MM/DD/YYYY
         return dateOfBirth.charAt(2) == '/' &&
-                dateOfBirth.charAt(5) == '/' &&
-                isNumeric(dateOfBirth.substring(0, 2)) &&
-                isNumeric(dateOfBirth.substring(3, 5)) &&
-                isNumeric(dateOfBirth.substring(6, 10));
+               dateOfBirth.charAt(5) == '/' &&
+               isNumeric(dateOfBirth.substring(0, 2)) &&
+               isNumeric(dateOfBirth.substring(3, 5)) &&
+               isNumeric(dateOfBirth.substring(6, 10));
     }
-
+    
     public static boolean isValidPhoneNumber(String phoneNumber) 
     {
         if (phoneNumber == null || phoneNumber.length() != 12) 
         {
             return false; 
         }
-
-        
+    
+        // Check format XXX-XXX-XXXX
         if (phoneNumber.charAt(3) != '-' || phoneNumber.charAt(7) != '-') 
         {
             return false; 
         }
-
-        
+    
+        // Validate that all parts are numeric
         String part1 = phoneNumber.substring(0, 3);
         String part2 = phoneNumber.substring(4, 7);
         String part3 = phoneNumber.substring(8, 12);
-
+    
         return isNumeric(part1) && isNumeric(part2) && isNumeric(part3);
     }
-
+    
     public void registerNewUser(String name, String DOB, String phoneNumber)
     {
+        // Validate input fields
         if (name != null && isValidDateOfBirth(DOB) && isValidPhoneNumber(phoneNumber))
         {
             int id = users.size() + 2000;
             User person = new User(id, name, DOB, phoneNumber);
+    
+            // Check if the user already exists
             if (userExists(person))
             {
                 throw new UserExistsException("User already exists in the system.");
             }
+    
+            // Register the new user
             users.put(id, person);
-
         }
-        else if (name == null)
+        else
         {
-            throw new InvalidUserNameException("Invalid Name.");
-        }
-        else if (!isValidDateOfBirth(DOB))
-        {
-            throw new InvalidDateofBirthException("Invalid Date of Birth.");
-        }
-        else if (!isValidPhoneNumber(phoneNumber))
-        {
-            throw new InvalidPhoneNumberException("Invalid Phone Number");
-        }
-    }
-
-    public void registerNewBook(String title, String author, String isbnNumber) {
-        if (title != null && author != null && isbnNumber.length() == 13 && isNumeric(isbnNumber)) 
-        {
-            Book newBook = new Book(title, author, isbnNumber);
-            if (bookExists(newBook))
+            // Validate and throw specific exceptions
+            if (name == null)
             {
-                throw new BookExistsException("A book with this ISBN Number already exists in the system.");
+                throw new InvalidUserNameException("Invalid Name.");
             }
-            books.add(newBook);
-        } 
-        else if (title == null) 
-        {
-            throw new InvalidTitleException("Invalid Title.");
-        } 
-        else if (author == null) 
-        {
-            throw new InvalidAuthorException("Invalid Author.");
-        } 
-        else if (isbnNumber.length() != 13 || !isNumeric(isbnNumber)) 
-        {
-            throw new InvalidISBNNumberException("Invalid ISBN Number. ISBN Number must be 13 digits." + isbnNumber.length());
-        }
-    }
-
-    public void listSummary(int accountId)
-    {
-        User user = getUser(accountId);
-        if (user != null)
-        {
-            System.out.println("Books checked out: ");
-            for (int i = 0; i < user.getCurrentBooks().size(); i++)
+            if (!isValidDateOfBirth(DOB))
             {
-                user.getCurrentBooks().get(i).printInfoShort();
+                throw new InvalidDateofBirthException("Invalid Date of Birth.");
             }
-            System.out.println("");
-            System.out.println("Returned books: ");
-            for (int i = 0; i < user.getReturnedBooks().size(); i++)
+            if (!isValidPhoneNumber(phoneNumber))
             {
-                user.getReturnedBooks().get(i).printInfoShort();
+                throw new InvalidPhoneNumberException("Invalid Phone Number");
             }
         }
     }
     
-
+    public void registerNewBook(String title, String author, String isbnNumber) 
+    {
+        // Validate input fields
+        if (title != null && author != null && isbnNumber.length() == 13 && isNumeric(isbnNumber)) 
+        {
+            Book newBook = new Book(title, author, isbnNumber);
+            
+            // Check if the book already exists
+            if (bookExists(newBook))
+            {
+                throw new BookExistsException("A book with this ISBN Number already exists in the system.");
+            }
+    
+            // Register the new book
+            books.add(newBook);
+        }
+        else
+        {
+            // Validate and throw specific exceptions
+            if (title == null) 
+            {
+                throw new InvalidTitleException("Invalid Title.");
+            }
+            if (author == null) 
+            {
+                throw new InvalidAuthorException("Invalid Author.");
+            }
+            if (isbnNumber.length() != 13 || !isNumeric(isbnNumber)) 
+            {
+                throw new InvalidISBNNumberException("Invalid ISBN Number. ISBN Number must be 13 digits.");
+            }
+        }
+    }
+    
+    public void listSummary(int accountId)
+    {
+        // Retrieve the user based on account ID
+        User user = getUser(accountId);
+        
+        if (user != null)
+        {
+            // List current checked-out books
+            System.out.println("Books checked out: ");
+            for (Book book : user.getCurrentBooks())
+            {
+                book.printInfoShort();
+            }
+    
+            // List returned books
+            System.out.println("\nReturned books: ");
+            for (Book book : user.getReturnedBooks())
+            {
+                book.printInfoShort();
+            }
+        }
+        else
+        {
+            throw new UserDoesNotExistException("User does not exist.");
+        }
+    }
+    
     public void sortByTitle()
     {
+        // Sort the list of books by title using the TitleComparator
         Collections.sort(books, new TitleComparator());
+        // List all books after sorting
         listAllBooks();
     }
-
+    
+    // Comparator class for sorting books by title
     private class TitleComparator implements Comparator<Book>
     {
         public int compare(Book a, Book b)
         {
             return a.getTitle().compareTo(b.getTitle());
         }
-    }
-
+    }    
 }
 
+// Exception thrown when a book is unavailable for checkout.
 class UnavailableBookException extends RuntimeException
 {
     public UnavailableBookException(String message)
@@ -367,6 +425,8 @@ class UnavailableBookException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when a requested book does not exist in the library.
 class BookDoesNotExistException extends RuntimeException
 {
     public BookDoesNotExistException(String message)
@@ -374,6 +434,8 @@ class BookDoesNotExistException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when a user does not exist in the system.
 class UserDoesNotExistException extends RuntimeException
 {
     public UserDoesNotExistException(String message)
@@ -381,6 +443,8 @@ class UserDoesNotExistException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when an invalid ISBN number is provided.
 class InvalidISBNNumberException extends RuntimeException
 {
     public InvalidISBNNumberException(String message)
@@ -388,6 +452,8 @@ class InvalidISBNNumberException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when an invalid user name is provided.
 class InvalidUserNameException extends RuntimeException
 {
     public InvalidUserNameException(String message)
@@ -395,6 +461,8 @@ class InvalidUserNameException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when an invalid date of birth is provided.
 class InvalidDateofBirthException extends RuntimeException
 {
     public InvalidDateofBirthException(String message)
@@ -402,6 +470,8 @@ class InvalidDateofBirthException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when an invalid phone number is provided.
 class InvalidPhoneNumberException extends RuntimeException
 {
     public InvalidPhoneNumberException(String message)
@@ -409,6 +479,8 @@ class InvalidPhoneNumberException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when an invalid book title is provided.
 class InvalidTitleException extends RuntimeException
 {
     public InvalidTitleException(String message)
@@ -416,6 +488,8 @@ class InvalidTitleException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when an invalid author name is provided.
 class InvalidAuthorException extends RuntimeException
 {
     public InvalidAuthorException(String message)
@@ -423,6 +497,8 @@ class InvalidAuthorException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when an operation is attempted with a book that the user did not check out.
 class WrongUserException extends RuntimeException
 {
     public WrongUserException(String message)
@@ -430,6 +506,8 @@ class WrongUserException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when attempting to register a user who already exists in the system.
 class UserExistsException extends RuntimeException
 {
     public UserExistsException(String message)
@@ -437,6 +515,8 @@ class UserExistsException extends RuntimeException
         super(message);
     }
 }
+
+// Exception thrown when attempting to register a book that already exists in the system.
 class BookExistsException extends RuntimeException
 {
     public BookExistsException(String message)

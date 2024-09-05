@@ -6,6 +6,7 @@ public class LibraryUI
 {
     public static void main(String[] args) {
         
+        // Create an instance of the library system manager
         LibrarySystemManager libMS = new LibrarySystemManager ();
 
         Scanner scanner = new Scanner(System.in);
@@ -18,27 +19,28 @@ public class LibraryUI
             {
                 if (action == null || action.equals("")) 
                 {
+                  // Skip empty input
                   System.out.print("\n>");
                   continue;
                 }  
 
+                // Exit program
                 else if (action.equalsIgnoreCase("Q") || action.equalsIgnoreCase("QUIT"))
                     return;
                 
                 else if (action.equalsIgnoreCase("USERS"))
                 {
-                    // List all users in the library management system
+                    // List all users in the system
                     libMS.listAllUsers();
                 }
                 else if (action.equalsIgnoreCase("BOOKS"))
                 {
-                    // List all books in the library management system
-                    // show with user chekced it out 
+                    // List all books in the system
                     libMS.listAllBooks();
                 }
                 else if (action.equalsIgnoreCase("CHECKOUT"))
                 {
-                    // user enters id, book isbn, to checkout
+                    // Checkout a book by user ID and ISBN
                     int accountId = 0;
                     System.out.print("User Account Id: ");
                     if (scanner.hasNextInt()) 
@@ -56,7 +58,7 @@ public class LibraryUI
                 }
                 else if (action.equalsIgnoreCase("SEARCH"))
                 {
-                    // search book based on title, show titel, author, isbn, avaible, and waitlist
+                    // Search for a book by title
                     String bookTitle = "";
                     System.out.print("Title of Book: ");
                     if (scanner.hasNextLine())
@@ -68,7 +70,7 @@ public class LibraryUI
                 }
                 else if (action.equalsIgnoreCase("RETURN"))
                 {
-                    // user enters id, book isbn, and return 
+                    // Return a book by user ID and ISBN
                     int accountId = 0;
                     System.out.print("User Account Id: ");
                     if (scanner.hasNextInt())
@@ -87,21 +89,19 @@ public class LibraryUI
                 }
                 else if (action.equalsIgnoreCase("LOADUSERS"))
                 {
-                    // load users from file
+                    // Load users from a file
                     String filename = "";
                     System.out.print("User File: ");
                     if (scanner.hasNextLine())
                     {
                         filename = scanner.nextLine();
                     }
-                    // Try block 
                     try 
                     {
                         ArrayList<User> usersList = LibraryRegistered.loadPreregisteredUsers(filename);
                         libMS.setUsers(usersList);
                         System.out.println("Users Loaded");
                     } 
-                    // Catch FileNotFoundException if file is not found 
                     catch (FileNotFoundException e) 
                     {
                         System.out.println("Users File: " + filename + " Not Found");
@@ -109,21 +109,19 @@ public class LibraryUI
                 }
                 else if (action.equalsIgnoreCase("LOADBOOKS"))
                 {
-                    // load books from file
+                    // Load books from a file
                     String filename = "";
                     System.out.print("Book File: ");
                     if (scanner.hasNextLine())
                     {
                         filename = scanner.nextLine();
                     }
-                    // Try block 
                     try 
                     {
                         ArrayList<Book> bookList = LibraryRegistered.loadPreregisteredBooks(filename);
                         libMS.setBooks(bookList);
                         System.out.println("Books Loaded");
                     } 
-                    // Catch FileNotFoundException if file is not found 
                     catch (FileNotFoundException e) 
                     {
                         System.out.println("Books File: " + filename + " Not Found");
@@ -131,7 +129,7 @@ public class LibraryUI
                 }
                 else if (action.equalsIgnoreCase("REGUSER"))
                 {
-                    // add new user 
+                    // Register a new user
                     String name = "";
                     System.out.print("Name: ");
                     if (scanner.hasNextLine())
@@ -155,7 +153,7 @@ public class LibraryUI
                 }
                 else if (action.equalsIgnoreCase("REGBOOK"))
                 {
-                    // add new book
+                    // Register a new book
                     String title = "";
                     System.out.print("Title: ");
                     if (scanner.hasNextLine())
@@ -181,6 +179,7 @@ public class LibraryUI
 
                 else if (action.equalsIgnoreCase("SUMMARY"))
                 {
+                    // Show summary of user's activity
                     int accountId = 0;
                     System.out.print("User Account Id: ");
                     if (scanner.hasNextInt())
@@ -193,21 +192,24 @@ public class LibraryUI
 
                 else if (action.equalsIgnoreCase("SORTBYTITLE"))
                 {
-                    // sort books by name
+                    // Sort books by title
                     libMS.sortByTitle(); 
                 }
 
                 else 
                 {
+                    // Handle invalid input
                     System.out.println("Invalid response. Please enter a valid command.");
                 }
             }
             catch (RuntimeException e)
             {
+              // Handle runtime exceptions
               System.out.println(e.getMessage());
             }
             System.out.print("\n>");
         }
+        // Close the scanner
         scanner.close();
     }
 }
