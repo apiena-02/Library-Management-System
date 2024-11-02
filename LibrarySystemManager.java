@@ -11,7 +11,7 @@ public class LibrarySystemManager {
 
     public LibrarySystemManager()
     {
-        users = new LinkedHashMap<>();
+        users = new LinkedHashMap<>(100, 0.75f);
         books = new ArrayList<Book>();
     }
 
